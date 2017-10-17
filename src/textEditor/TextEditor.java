@@ -26,6 +26,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -49,8 +51,8 @@ public class TextEditor extends Application {
     File file;
     private String filename = "";
     String intro = "Type here... ";
-    int width = 400;
-    int height = 300;
+    int width = 350;
+    int height = 350;
     Stage primaryStage;
     Scene scene;
 
@@ -166,7 +168,7 @@ public class TextEditor extends Application {
     }
 
     /**
-     * ******FILE ACTIONS*********
+     * *****FILE ACTIONS*********
      */
     public void saveFile(double width, double height, String text) {
         set = new Settings(width, height, text);
@@ -178,11 +180,6 @@ public class TextEditor extends Application {
             try (FileWriter fw = new FileWriter(filename)) {
                 fw.write(input);
                 fw.close();
-                /*Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setContentText("file saved");
-                alert.showAndWait();*/
                 System.out.println(width);
                 System.out.println(height);
                 System.out.println(text);
@@ -339,37 +336,28 @@ public class TextEditor extends Application {
     }
 
     public void toolMenu() {
-        DropShadow shadow = new DropShadow();
         Separator separate = new Separator();
-        //Image imageDecline = new Image(getClass().getResourceAsStream("/file-save.png"));
-        //ImageView graphic = new ImageView(imageDecline);
-        //save.setGraphic(graphic);
         /**
-         * *****SAVE BUTTON******
+         * ****SAVE BUTTON******
          */
-        Button save = new Button("Save");
+        Button save = new Button();
+        Image saveIcon = new Image(getClass().getResourceAsStream("Assets/file-save.png"));
+        ImageView saveGraphic = new ImageView(saveIcon);
+        save.setGraphic(saveGraphic);
         save.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 saveFile(scene.getWidth(), scene.getHeight(), text.getText());
             }
         });
-        save.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                save.setEffect(shadow);
-            }
-        });
-        save.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                save.setEffect(null);
-            }
-        });
+        setShadow(save);
         /**
          * *****OPEN BUTTON******
          */
-        Button open = new Button("Open");
+        Button open = new Button();
+        Image openIcon = new Image(getClass().getResourceAsStream("Assets/file-open.png"));
+        ImageView openGraphic = new ImageView(openIcon);
+        open.setGraphic(openGraphic);
         open.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(final ActionEvent e) {
@@ -379,86 +367,67 @@ public class TextEditor extends Application {
                 }
             }
         });
-        open.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                open.setEffect(shadow);
-            }
-        });
-        open.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                open.setEffect(shadow);
-            }
-        });
+        setShadow(open);
         /**
          * *****CUT BUTTON******
          */
-        Button cut = new Button("Cut");
+        Button cut = new Button();
+        Image cutIcon = new Image(getClass().getResourceAsStream("Assets/file-cut.png"));
+        ImageView cutGraphic = new ImageView(cutIcon);
+        cut.setGraphic(cutGraphic);
         cut.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 textCut();
             }
         });
-        cut.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                cut.setEffect(shadow);
-            }
-        });
-        cut.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                cut.setEffect(shadow);
-            }
-        });
+        setShadow(cut);
         /**
-         * *****COPY BUTTON*****
+         * ****COPY BUTTON*****
          */
-        Button copy = new Button("Copy");
+        Button copy = new Button();
+        Image copyIcon = new Image(getClass().getResourceAsStream("Assets/file-copy.png"));
+        ImageView copyGraphic = new ImageView(copyIcon);
+        copy.setGraphic(copyGraphic);
         copy.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 textCopy();
             }
         });
-        copy.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                copy.setEffect(shadow);
-            }
-        });
-        copy.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                copy.setEffect(shadow);
-            }
-        });
+        setShadow(copy);
         /**
-         * *****PASTE BUTTON*****
+         * ****PASTE BUTTON*****
          */
-        Button paste = new Button("Paste");
+        Button paste = new Button();
+        Image pasteIcon = new Image(getClass().getResourceAsStream("Assets/file-paste.png"));
+        ImageView pasteGraphic = new ImageView(pasteIcon);
+        paste.setGraphic(pasteGraphic);
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 textPaste();
             }
         });
-        paste.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                paste.setEffect(shadow);
-            }
-        });
-        paste.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                paste.setEffect(shadow);
-            }
-        });
+        setShadow(paste);
         toolBar = new ToolBar(
                 save, open, separate, cut, copy, paste
         );
+    }
+  
+    public void setShadow(Button button){
+        DropShadow shadow = new DropShadow();
+        button.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                button.setEffect(shadow);
+            }
+        });
+        button.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                button.setEffect(null);
+            }
+        });
     }
 }
