@@ -34,6 +34,7 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -51,7 +52,7 @@ public class TextEditor extends Application {
     File file;
     private String filename = "";
     String intro = "Type here... ";
-    int width = 350;
+    int width = 400;
     int height = 350;
     Stage primaryStage;
     Scene scene;
@@ -60,12 +61,18 @@ public class TextEditor extends Application {
     public void start(Stage primaryStage) {
         onOpen(); //opening the document
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
-        Menu fileMenu = new Menu("File");
+        Menu fileMenu = new Menu("_File");
+        fileMenu.setMnemonicParsing(true);
+        fileMenu.setAccelerator(
+                KeyCombination.keyCombination("SHORTCUT+F")
+        );
         MenuItem f0 = new MenuItem("_New");
+        f0.setMnemonicParsing(true);
         f0.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+N")
         );
         MenuItem f1 = new MenuItem("_Open");
+        f1.setMnemonicParsing(true);
         f1.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+O")
         );
@@ -75,18 +82,16 @@ public class TextEditor extends Application {
             public void handle(final ActionEvent e) {
                 file = chooseFile.showOpenDialog(primaryStage);
                 if (file != null) {
-                    openFile(file);
+                    openFile();
                 }
             }
         });
         MenuItem f2 = new MenuItem("_Save");
         f2.setAccelerator(
-                KeyCombination.keyCombination("SHORTCUT+S")
-        );
+                KeyCombination.keyCombination("SHORTCUT+S"));
         f2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(final ActionEvent e) {
-                //Set extension filter
+            public void handle(final ActionEvent e) { //Set extension filter
                 FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt", "*.json", "*.rtf");
                 chooseFile.getExtensionFilters().add(extFilter);
                 saveFile(scene.getWidth(), scene.getHeight(), text.getText());
@@ -99,7 +104,7 @@ public class TextEditor extends Application {
                 file = chooseFile.showSaveDialog(primaryStage);
             }
         });
-        MenuItem f4 = new MenuItem("Page Setup");
+        MenuItem f4 = new MenuItem("Page _Setup");
         MenuItem f5 = new MenuItem("_Print");
         f5.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+P")
@@ -117,6 +122,7 @@ public class TextEditor extends Application {
          * ******MENU BARS********
          */
         menuBar.getMenus().addAll(fileMenu);
+        fileMenu.setMnemonicParsing(true);
         editMenu();         //Edit Menu
         formatMenu();       //format Menu
         viewMenu();          //View Menu
@@ -131,9 +137,11 @@ public class TextEditor extends Application {
 
         //SCENE + PANE
         BorderPane root = new BorderPane();
-        root.setTop(menuBar);
-        root.setCenter(toolBar);
-        root.setBottom(text);
+        VBox vbox = new VBox();
+        vbox.getChildren().add(menuBar);
+        vbox.getChildren().add(toolBar);
+        root.setTop(vbox);
+        root.setCenter(text);
 
         double getWidth = set.getWidth();
         double getHeight = set.getHeight();
@@ -154,22 +162,42 @@ public class TextEditor extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    
+    /**
+     * *****FILE ACTIONS*********
+     */
     public void onOpen() {
+        if(!filename.isEmpty()){
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr);
             set = new Gson().fromJson(br.readLine(), Settings.class);
             br.close();
         } catch (IOException ex) {
-            set = new Settings(width, height, intro);
-            System.out.println("IOException - 165");
+            System.out.println("IOException - 177");
+        }} else {
+           set = new Settings(width, height, intro);      
         }
     }
 
-    /**
-     * *****FILE ACTIONS*********
-     */
+    private void openFile() {
+        try {
+            filename = file.getName();
+            FileReader fr = new FileReader(filename);
+            BufferedReader br = new BufferedReader(fr);
+            set = new Gson().fromJson(br.readLine(), Settings.class); 
+            scene.getHeight();
+            scene.getWidth();
+            text.setText(set.input);  
+            //set.setWidth(set.getWidth());
+            br.close();
+            System.out.println("read file");
+        } catch (IOException ex) {
+            System.out.println("IOException ex");
+            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public void saveFile(double width, double height, String text) {
         set = new Settings(width, height, text);
         String input = new Gson().toJson(set);
@@ -202,15 +230,6 @@ public class TextEditor extends Application {
         }
     }
 
-    private void openFile(File file) {
-        try {
-            desktop.open(file);
-        } catch (IOException ex) {
-            System.out.println("IOException ex");
-            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void textCopy() {
         content.clear();
         clipboard.clear();
@@ -236,7 +255,8 @@ public class TextEditor extends Application {
         if (content.hasString()) {
             clipboard.getContent(DataFormat.PLAIN_TEXT);
             //String newText = content.getString();
-            text.setText(content.getString());
+            //text.setText(content.getString());
+            text.appendText(" " + content.getString());
             //text.appendText(newText);
             System.out.println("textPaste " + clipboard.getContent(DataFormat.PLAIN_TEXT));
         } else {
@@ -248,30 +268,55 @@ public class TextEditor extends Application {
      * *****SUB MENUS******
      */
     private void editMenu() {
-        String[] eOption = {"Undo", "Cut", "Copy", "Paste", "Delete", "Find...",
-            "Find Next", "Replace...", "Go To...", "Select All", "Time/Date"};
+        String[] eOption = {"_Undo", "_Cut", "C_opy", "_Paste", "_Delete", "Find...",
+            "Find _Next", "_Replace...", "Go _To...", "Select _All", "Time/_Date"};
         Menu eMenu = new Menu("Edit");
+        eMenu.setMnemonicParsing(true);
         MenuItem e0 = new MenuItem(eOption[0]);
         e0.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+Z")
-        );
+        );  
         MenuItem e1 = new MenuItem(eOption[1]);
         e1.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+X")
         );
+        e1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+                textCut();
+            }
+        });
         MenuItem e2 = new MenuItem(eOption[2]);
         e2.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+C")
         );
+        e2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+                textCopy();
+            }
+        });
 
         MenuItem e3 = new MenuItem(eOption[3]);
         e3.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+V")
         );
+        e3.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+                textPaste();
+            }
+        });
         MenuItem e4 = new MenuItem(eOption[4]);
         e4.setAccelerator(
                 KeyCombination.keyCombination("Del")
         );
+        e4.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+                text.clear();
+            }
+        });
         MenuItem e5 = new MenuItem(eOption[5]);
         e5.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+F")
@@ -311,25 +356,28 @@ public class TextEditor extends Application {
     }
 
     private void formatMenu() {
-        Menu fMenu = new Menu("Format");
-        MenuItem f1 = new MenuItem("Word Wrap");
-        MenuItem f2 = new MenuItem("Font..");
+        Menu fMenu = new Menu("_Format");
+        fMenu.setMnemonicParsing(true);
+        MenuItem f1 = new MenuItem("Word _Wrap");
+        MenuItem f2 = new MenuItem("_Font..");
         fMenu.getItems().add(f1);
         fMenu.getItems().add(f2);
         menuBar.getMenus().addAll(fMenu);
     }
 
     private void viewMenu() {
-        Menu vMenu = new Menu("View");
-        MenuItem v1 = new MenuItem("Status Bar");
+        Menu vMenu = new Menu("_View");
+        vMenu.setMnemonicParsing(true);
+        MenuItem v1 = new MenuItem("_Status Bar");
         vMenu.getItems().add(v1);
         menuBar.getMenus().addAll(vMenu);
     }
 
     private void helpMenu() {
-        Menu hMenu = new Menu("Help");
-        MenuItem h1 = new MenuItem("View Help");
-        MenuItem h2 = new MenuItem("About Notepad");
+        Menu hMenu = new Menu("_Help");
+        hMenu.setMnemonicParsing(true);
+        MenuItem h1 = new MenuItem("View _Help");
+        MenuItem h2 = new MenuItem("_About Notepad");
         hMenu.getItems().add(h1);
         hMenu.getItems().add(h2);
         menuBar.getMenus().addAll(hMenu);
@@ -337,9 +385,7 @@ public class TextEditor extends Application {
 
     public void toolMenu() {
         Separator separate = new Separator();
-        /**
-         * ****SAVE BUTTON******
-         */
+        /* ****SAVE BUTTON*******/
         Button save = new Button();
         Image saveIcon = new Image(getClass().getResourceAsStream("Assets/file-save.png"));
         ImageView saveGraphic = new ImageView(saveIcon);
@@ -363,7 +409,7 @@ public class TextEditor extends Application {
             public void handle(final ActionEvent e) {
                 file = chooseFile.showOpenDialog(primaryStage);
                 if (file != null) {
-                    openFile(file);
+                    openFile();
                 }
             }
         });
