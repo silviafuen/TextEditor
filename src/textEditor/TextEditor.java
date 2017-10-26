@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -22,6 +23,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -33,6 +35,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -46,6 +49,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -233,14 +237,24 @@ public class TextEditor extends Application {
     }
 
     private void saveAsFile(String content, File file) {
-        try {
-            filename = file.getName();
-            FileWriter fileWriter;
-            fileWriter = new FileWriter(file);
-            fileWriter.write(content);
-            fileWriter.close();
-        } catch (IOException ex) {
-            Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
+        Alert alert = new Alert(AlertType.WARNING);
+        alert.setTitle("Warning Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to close without saving?");
+        alert.showAndWait();
+        if (alert.getResult().equals(true)) {
+            try {
+                filename = file.getName();
+                FileWriter fileWriter;
+                fileWriter = new FileWriter(file);
+                fileWriter.write(content);
+                fileWriter.close();
+            } catch (IOException ex) {
+                System.out.println("IOException - 163");
+                Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            System.out.close();
         }
     }
 
@@ -279,38 +293,62 @@ public class TextEditor extends Application {
     }
 
     public void formatFont() {
-        //Font
-        ListView<String> listView = new ListView<>();
+        //FONT
+        ListView<String> familyView = new ListView<>();
         List<String> familiesList = Font.getFamilies();
         ObservableList<String> familiesObservableList = FXCollections.observableArrayList(familiesList);
-        listView.setItems(familiesObservableList);
-        
-       // ListView<String> styleView = new ListView<>();
-        //List<String> styleList = Font.getFontNames(listView);
-       // ObservableList<String> styleObservableList = FXCollections.observableArrayList(styleList);
-       // styleView.setItems(styleObservableList);
+        familyView.setItems(familiesObservableList);
+        //STYLE
+        ListView<String> styleView = new ListView<>();
+        familyView.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent ev) {
+                List<String> styles = Font.getFontNames(familyView.getSelectionModel().getSelectedItem());
+//        List<String> styleList =  style.getStyle();
+                ObservableList<String> styleObservableList = FXCollections.observableArrayList(styles);
+                styleView.setItems(styleObservableList);
+            }
+        });
+        ListView<String> sizeView = new ListView<>();
+        styleView.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent ev) {
+                double styles =  Font.getDefault().getSize();
+            Font.getDefault().getSize();
+//        List<String> styleList =  style.getStyle();
+                //ObservableList<String> sizeObservableList = FXCollections.observableArrayList(styles);
+                //styleView.setItems(styleObservableList);
+            }
+        });
+        String selected = familyView.getSelectionModel().getSelectedItem();
+        Text t = null;
+        t.setFont(Font.font(selected, 14));
+
+        String item = familyView.getSelectionModel().getSelectedItem();
 
         Dialog dialog = new Dialog();
         HBox hbox = new HBox();
         DialogPane dp = new DialogPane();
         dialog.setTitle("Font");
         hbox.setSpacing(10);
-        hbox.getChildren().add(listView);
+        hbox.getChildren().add(familyView);
+        hbox.getChildren().add(styleView);
+        hbox.getChildren().add(sizeView);
         dp.setContent(hbox);
-       
+
         ButtonType select = new ButtonType("Select", ButtonData.OK_DONE);
         dialog.setHeaderText(null);
-       
+
         dialog.setDialogPane(dp);
         dp.autosize();
-        dialog.getDialogPane().getButtonTypes().addAll(select,ButtonType.CANCEL);
-        dialog.showAndWait(); 
-        
-        System.out.println();
+        dialog.getDialogPane().getButtonTypes().addAll(select, ButtonType.CANCEL);
+        dialog.showAndWait();
+        System.out.println(item);
+        System.out.println(t);
         //ListView<String> stylelistView = new ListView<>();
 
 
-       /* Alert alert = new Alert(AlertType.INFORMATION);
+        /* Alert alert = new Alert(AlertType.INFORMATION);
         ChoiceDialog<String> dialog = new ChoiceDialog<>("b", familiesList);
         dialog.setTitle("Information Dialog");
         dialog.getItems();
