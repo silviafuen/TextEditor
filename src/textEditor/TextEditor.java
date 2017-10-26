@@ -12,13 +12,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -34,7 +43,9 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -49,6 +60,7 @@ public class TextEditor extends Application {
     MenuBar menuBar = new MenuBar();
     ToolBar toolBar = new ToolBar();
     TextArea text = new TextArea();
+    Alert alert;
     File file;
     private String filename = "";
     String intro = "Type here... ";
@@ -162,21 +174,22 @@ public class TextEditor extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
+
     /**
      * *****FILE ACTIONS*********
      */
     public void onOpen() {
-        if(!filename.isEmpty()){
-        try {
-            FileReader fr = new FileReader(filename);
-            BufferedReader br = new BufferedReader(fr);
-            set = new Gson().fromJson(br.readLine(), Settings.class);
-            br.close();
-        } catch (IOException ex) {
-            System.out.println("IOException - 177");
-        }} else {
-           set = new Settings(width, height, intro);      
+        if (!filename.isEmpty()) {
+            try {
+                FileReader fr = new FileReader(filename);
+                BufferedReader br = new BufferedReader(fr);
+                set = new Gson().fromJson(br.readLine(), Settings.class);
+                br.close();
+            } catch (IOException ex) {
+                System.out.println("IOException - 177");
+            }
+        } else {
+            set = new Settings(width, height, intro);
         }
     }
 
@@ -185,10 +198,11 @@ public class TextEditor extends Application {
             filename = file.getName();
             FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr);
-            set = new Gson().fromJson(br.readLine(), Settings.class); 
-            scene.getHeight();
-            scene.getWidth();
-            text.setText(set.input);  
+            set = new Gson().fromJson(br.readLine(), Settings.class);
+
+            set.height = Double.valueOf(primaryStage.getHeight());
+            set.width = Double.valueOf(primaryStage.getWidth());
+            text.setText(set.input);
             //set.setWidth(set.getWidth());
             br.close();
             System.out.println("read file");
@@ -197,7 +211,7 @@ public class TextEditor extends Application {
             Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void saveFile(double width, double height, String text) {
         set = new Settings(width, height, text);
         String input = new Gson().toJson(set);
@@ -264,6 +278,45 @@ public class TextEditor extends Application {
         }
     }
 
+    public void formatFont() {
+        //Font
+        ListView<String> listView = new ListView<>();
+        List<String> familiesList = Font.getFamilies();
+        ObservableList<String> familiesObservableList = FXCollections.observableArrayList(familiesList);
+        listView.setItems(familiesObservableList);
+        
+       // ListView<String> styleView = new ListView<>();
+        //List<String> styleList = Font.getFontNames(listView);
+       // ObservableList<String> styleObservableList = FXCollections.observableArrayList(styleList);
+       // styleView.setItems(styleObservableList);
+
+        Dialog dialog = new Dialog();
+        HBox hbox = new HBox();
+        DialogPane dp = new DialogPane();
+        dialog.setTitle("Font");
+        hbox.setSpacing(10);
+        hbox.getChildren().add(listView);
+        dp.setContent(hbox);
+       
+        ButtonType select = new ButtonType("Select", ButtonData.OK_DONE);
+        dialog.setHeaderText(null);
+       
+        dialog.setDialogPane(dp);
+        dp.autosize();
+        dialog.getDialogPane().getButtonTypes().addAll(select,ButtonType.CANCEL);
+        dialog.showAndWait(); 
+        
+        System.out.println();
+        //ListView<String> stylelistView = new ListView<>();
+
+
+       /* Alert alert = new Alert(AlertType.INFORMATION);
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("b", familiesList);
+        dialog.setTitle("Information Dialog");
+        dialog.getItems();
+        return;*/
+    }
+
     /**
      * *****SUB MENUS******
      */
@@ -275,7 +328,7 @@ public class TextEditor extends Application {
         MenuItem e0 = new MenuItem(eOption[0]);
         e0.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+Z")
-        );  
+        );
         MenuItem e1 = new MenuItem(eOption[1]);
         e1.setAccelerator(
                 KeyCombination.keyCombination("SHORTCUT+X")
@@ -360,6 +413,12 @@ public class TextEditor extends Application {
         fMenu.setMnemonicParsing(true);
         MenuItem f1 = new MenuItem("Word _Wrap");
         MenuItem f2 = new MenuItem("_Font..");
+        f2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+                formatFont();
+            }
+        });
         fMenu.getItems().add(f1);
         fMenu.getItems().add(f2);
         menuBar.getMenus().addAll(fMenu);
@@ -460,8 +519,8 @@ public class TextEditor extends Application {
                 save, open, separate, cut, copy, paste
         );
     }
-  
-    public void setShadow(Button button){
+
+    public void setShadow(Button button) {
         DropShadow shadow = new DropShadow();
         button.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
             @Override
@@ -476,4 +535,5 @@ public class TextEditor extends Application {
             }
         });
     }
+
 }

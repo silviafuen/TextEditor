@@ -1,1 +1,1 @@
-{"width":421.0,"height":150.0,"input":"9:05pm"}
+{"width":400.0,"height":350.0,"input":"Type here... "}
