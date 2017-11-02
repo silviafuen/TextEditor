@@ -57,6 +57,7 @@ import javafx.stage.WindowEvent;
 public class TextEditor extends Application {
 
     public Settings set;
+    public FormatFont formatfont;
     private Desktop desktop = Desktop.getDesktop();
     final FileChooser chooseFile = new FileChooser();
     final Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -293,68 +294,15 @@ public class TextEditor extends Application {
     }
 
     public void formatFont() {
-        //FONT
-        ListView<String> familyView = new ListView<>();
-        List<String> familiesList = Font.getFamilies();
-        ObservableList<String> familiesObservableList = FXCollections.observableArrayList(familiesList);
-        familyView.setItems(familiesObservableList);
-        //STYLE
-        ListView<String> styleView = new ListView<>();
-        familyView.setOnMouseEntered(new EventHandler<MouseEvent>() {
+        formatfont.getDialog();
+        //STYLE DISPLAY ON SELECTION
+        formatfont.familyView.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent ev) {
-                List<String> styles = Font.getFontNames(familyView.getSelectionModel().getSelectedItem());
-//        List<String> styleList =  style.getStyle();
-                ObservableList<String> styleObservableList = FXCollections.observableArrayList(styles);
-                styleView.setItems(styleObservableList);
+                formatfont.getStyle();
             }
-        });
-        ListView<String> sizeView = new ListView<>();
-        styleView.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent ev) {
-                double styles =  Font.getDefault().getSize();
-            Font.getDefault().getSize();
-//        List<String> styleList =  style.getStyle();
-                //ObservableList<String> sizeObservableList = FXCollections.observableArrayList(styles);
-                //styleView.setItems(styleObservableList);
-            }
-        });
-        String selected = familyView.getSelectionModel().getSelectedItem();
-        Text t = null;
-        t.setFont(Font.font(selected, 14));
-
-        String item = familyView.getSelectionModel().getSelectedItem();
-
-        Dialog dialog = new Dialog();
-        HBox hbox = new HBox();
-        DialogPane dp = new DialogPane();
-        dialog.setTitle("Font");
-        hbox.setSpacing(10);
-        hbox.getChildren().add(familyView);
-        hbox.getChildren().add(styleView);
-        hbox.getChildren().add(sizeView);
-        dp.setContent(hbox);
-
-        ButtonType select = new ButtonType("Select", ButtonData.OK_DONE);
-        dialog.setHeaderText(null);
-
-        dialog.setDialogPane(dp);
-        dp.autosize();
-        dialog.getDialogPane().getButtonTypes().addAll(select, ButtonType.CANCEL);
-        dialog.showAndWait();
-        System.out.println(item);
-        System.out.println(t);
-        //ListView<String> stylelistView = new ListView<>();
-
-
-        /* Alert alert = new Alert(AlertType.INFORMATION);
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("b", familiesList);
-        dialog.setTitle("Information Dialog");
-        dialog.getItems();
-        return;*/
+        });    
     }
-
     /**
      * *****SUB MENUS******
      */
