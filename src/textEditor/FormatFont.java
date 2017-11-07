@@ -16,6 +16,9 @@ import javafx.scene.text.Font;
 /* @author silviafuen */
 public class FormatFont {
 
+    public FormatFont(){
+        
+    }
     Dialog dialog = new Dialog();
     HBox hbox = new HBox();
     DialogPane dp = new DialogPane();
@@ -26,16 +29,16 @@ public class FormatFont {
     String style;
     Double size;
 
-    public String getFamily() {   
+    public List<String> getFamily() {   
         List<String> familiesList = Font.getFamilies();
         ObservableList<String> familiesObservableList = FXCollections.observableArrayList(familiesList);
         familyView.setItems(familiesObservableList);
         family = familyView.getSelectionModel().getSelectedItem();
-        return family;
+        return (List<String>) familyView;
     }
 
     public String getStyle() {
-        List<String> styles = Font.getFontNames(getFamily());
+        List<String> styles = Font.getFontNames(family);
         ObservableList<String> styleObservableList = FXCollections.observableArrayList(styles);
         styleView.setItems(styleObservableList);
         style = styleView.getSelectionModel().getSelectedItem();
