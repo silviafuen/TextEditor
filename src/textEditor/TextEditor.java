@@ -74,7 +74,7 @@ public class TextEditor extends Application {
     @Override
     public void start(Stage primaryStage) {
         onOpen(); //opening the document
-        scene.getStylesheets().add("style.css");
+        
         menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
         Menu fileMenu = new Menu("_File");
         fileMenu.setMnemonicParsing(true);
@@ -160,9 +160,10 @@ public class TextEditor extends Application {
         root.setCenter(text);
         root.setBottom(hbox);
         //hbox.getChildren().add(fileLabel);
-        root.getStyleClass().add(".back");
+        //root.getStyleClass().add(".back");
         double getWidth = set.getWidth();
         double getHeight = set.getHeight();
+        scene.getStylesheets().add("/textEditor/style.css");
         scene = new Scene(root, getWidth, getHeight);
         // STAGE
         primaryStage.setTitle("Text Editor" + filename);
