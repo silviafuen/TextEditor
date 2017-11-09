@@ -1,6 +1,9 @@
 /* Created on : Nov 5, 2017, 11:49:27 PM
 Author: silviafuen*/
+.before-press {
+    -fx-background-color: #FFFFFF;
+}
 
-.back {
-    -fx-background-color: #5DD892;
+.on-pressed {
+    -fx-background-color: #CCCCCC;
 }

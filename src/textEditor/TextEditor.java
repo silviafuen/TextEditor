@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -49,6 +50,7 @@ import javafx.stage.WindowEvent;
 public class TextEditor extends Application {
 
     public Settings set;
+    Button save, cut, copy, paste;
     public TextPaste pasteText = new TextPaste();
     Label fileLabel;
     public TimeDisplay time = new TimeDisplay();
@@ -160,11 +162,13 @@ public class TextEditor extends Application {
         root.setCenter(text);
         root.setBottom(hbox);
         //hbox.getChildren().add(fileLabel);
-        //root.getStyleClass().add(".back");
         double getWidth = set.getWidth();
         double getHeight = set.getHeight();
-        scene.getStylesheets().add("/textEditor/style.css");
-        scene = new Scene(root, getWidth, getHeight);
+        
+        scene = new Scene(new Group(), getWidth, getHeight);
+        scene.getStylesheets().add("textEditor/style.css");
+        ((Group)scene.getRoot()).getChildren().addAll(paste,copy,cut,save,root);
+        
         // STAGE
         primaryStage.setTitle("Text Editor" + filename);
         primaryStage.setScene(scene);
@@ -435,15 +439,14 @@ public class TextEditor extends Application {
     public void toolMenu() {
         Separator separate = new Separator();
         /* ****SAVE BUTTON*******/
-        Button save = new Button();
+        save = new Button();
         Image saveIcon = new Image(getClass().getResourceAsStream("Assets/file-save.png"));
         ImageView saveGraphic = new ImageView(saveIcon);
-        save.setGraphic(saveGraphic);
-        save.getStyleClass().add("back");
-        //save.setStyle("-fx-background-color: #5DD892;");
+        save.setGraphic(saveGraphic); 
+        save.setStyle("-fx-background-color: #5DD892;");
         save.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent e) {
+            public void handle(ActionEvent e) {         
                 saveFile(scene.getWidth(), scene.getHeight(), text.getText());
             }
         });
@@ -457,38 +460,44 @@ public class TextEditor extends Application {
         open.setGraphic(openGraphic);
         open.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(final ActionEvent e) {
+            public void handle(final ActionEvent e) {           
                 file = chooseFile.showOpenDialog(primaryStage);
                 if (file != null) {
                     openFile();
-                }
+                }             
             }
         });
         setShadow(open);
         /**
          * *****CUT BUTTON******
          */
-        Button cut = new Button();
+        cut = new Button();
         Image cutIcon = new Image(getClass().getResourceAsStream("Assets/file-cut.png"));
         ImageView cutGraphic = new ImageView(cutIcon);
         cut.setGraphic(cutGraphic);
+       
         cut.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                textCut();
-            }
-        });
+                //cut.getStyleClass().add("on-pressed"); 
+                textCut();    
+                cut.getStyleClass().add("before-press");
+            }   
+        });  
+        //cut.setDefaultButton(true);
         setShadow(cut);
         /**
          * ****COPY BUTTON*****
          */
-        Button copy = new Button();
+        copy = new Button();
         Image copyIcon = new Image(getClass().getResourceAsStream("Assets/file-copy.png"));
         ImageView copyGraphic = new ImageView(copyIcon);
         copy.setGraphic(copyGraphic);
         copy.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
+                //copy.getStyleClass().add("on-pressed");
+                //copy.setEffect(null);
                 textCopy();
             }
         });
@@ -496,13 +505,14 @@ public class TextEditor extends Application {
         /**
          * ****PASTE BUTTON*****
          */
-        Button paste = new Button();
+        paste = new Button();
         Image pasteIcon = new Image(getClass().getResourceAsStream("Assets/file-paste.png"));
         ImageView pasteGraphic = new ImageView(pasteIcon);
         paste.setGraphic(pasteGraphic);
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
+                paste.getStyleClass().add("on-pressed");
                 String pasted = pasteText.textPaste(clipboard,content);
                 text.appendText(" " + pasteText.getText());
             }
@@ -511,6 +521,7 @@ public class TextEditor extends Application {
         toolBar = new ToolBar(
                 save, open, separate, cut, copy, paste
         );
+        
     }
 
     public void setShadow(Button button) {
@@ -518,12 +529,16 @@ public class TextEditor extends Application {
         button.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+                button.setStyle(null);
+                button.getStyleClass().add("on-pressed");
                 button.setEffect(shadow);
             }
         });
         button.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
+                button.getStyleClass().clear();
+                //button.setStyle(null);
                 button.setEffect(null);
             }
         });
